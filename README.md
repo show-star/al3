@@ -182,7 +182,56 @@ A `DeprecationWarning: value_deserializer does not implement kafka.serializer.De
 
 ## Errors on Windows and how to fix them
 
-### Error 1: `error during connect` or `cannot find the file specified` on `docker ps`
+### Error 1: `docker : The term 'docker' is not recognized`
+
+**Cause:** Docker Desktop is not installed, or it is installed and running but the terminal cannot find the `docker` program.
+
+**If Docker Desktop is not installed:**
+
+1. Download it from <https://www.docker.com/products/docker-desktop/> and run the installer.
+2. Keep **Use WSL 2 instead of Hyper-V** ticked and restart the laptop when it asks.
+3. Open Docker Desktop and wait until the bottom-left corner shows **Engine running**.
+4. Close VS Code completely, open it again and run `docker --version`.
+
+**If Docker Desktop is running but the terminal still does not find `docker`:**
+
+1. Run these lines one at a time in the same terminal. They find where Docker is installed and add it to the terminal's path. The first two lines can take up to a minute.
+   ```powershell
+   $d = Split-Path (Get-Process "Docker Desktop" | Select-Object -First 1).Path
+   $exe = Get-ChildItem $d, (Split-Path $d), "C:\Program Files\Docker", "$env:LOCALAPPDATA\Programs" -Filter docker.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+   $exe.FullName
+   $env:PATH += ";" + $exe.DirectoryName
+   docker --version
+   ```
+2. The third line prints the location of `docker.exe`, and the last line prints the Docker version.
+3. Continue with `docker compose up -d` in the same terminal. This fix lasts until the terminal is closed; restarting the laptop usually makes it permanent.
+
+**If that does not work, use Docker's own terminal:**
+
+1. Open the Docker Desktop window and click the **`>_`** icon at the bottom right corner.
+2. In the terminal that opens, go to the project folder and run the Docker commands there:
+   ```powershell
+   cd "C:\path\to\al3"
+   docker compose up -d
+   docker ps
+   ```
+
+### Error 2: `The term 'C:\Users\...' is not recognized` when opening the project folder
+
+**Cause:** the folder path was typed without `cd`, or the path contains spaces and was not put in quotes.
+
+1. Type `cd` first and put the whole path in double quotes:
+   ```powershell
+   cd "C:\Users\HP\OneDrive\Desktop\big data1\practical 3"
+   ```
+2. `git clone` puts the files in a subfolder named `al3`, so go into it:
+   ```powershell
+   cd al3
+   dir
+   ```
+3. `dir` should list `docker-compose.yml`, `producer.py` and `consumer.py`.
+
+### Error 3: `error during connect` on `docker ps`
 
 **Cause:** Docker Desktop is not running.
 
@@ -190,7 +239,7 @@ A `DeprecationWarning: value_deserializer does not implement kafka.serializer.De
 2. Wait until the bottom-left corner shows **Engine running**.
 3. Run `docker ps` again.
 
-### Error 2: `NoBrokersAvailable` when running the Python programs
+### Error 4: `NoBrokersAvailable` when running the Python programs
 
 **Cause:** the brokers are not running or have not finished starting.
 
@@ -198,7 +247,7 @@ A `DeprecationWarning: value_deserializer does not implement kafka.serializer.De
 2. If they are missing, run `docker compose up -d` in the project folder.
 3. Wait 20 to 30 seconds and run the program again.
 
-### Error 3: `port is already allocated`
+### Error 5: `port is already allocated`
 
 **Cause:** another program or an old container is using port 29092, 39092 or 49092.
 
@@ -206,14 +255,14 @@ A `DeprecationWarning: value_deserializer does not implement kafka.serializer.De
 2. Run `docker ps -a` and remove any old Kafka container with `docker rm -f <container-name>`.
 3. Run `docker compose up -d` again.
 
-### Error 4: `ModuleNotFoundError: No module named 'kafka'`
+### Error 6: `ModuleNotFoundError: No module named 'kafka'`
 
 **Cause:** the Kafka library is not installed in the Python being used.
 
 1. Run `pip install kafka-python`.
 2. Run the program again with the same `python` command.
 
-### Error 5: the consumer prints nothing
+### Error 7: the consumer prints nothing
 
 **Cause:** this consumer group has already read all the messages.
 
