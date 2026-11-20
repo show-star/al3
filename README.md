@@ -1,9 +1,5 @@
 # Big Data Practical 3: 3-Broker Kafka Cluster
 
-**Name:** Arvind Yadav
-**Roll no:** 31011123065
-**Course:** LYBSc. CS
-
 ## Aim
 
 Set up a 3-broker Apache Kafka cluster using Docker, and send and receive messages with a Python producer and consumer.
